@@ -1,0 +1,19 @@
+[package]
+name = "reverse-scroll"
+version = "0.3.0"
+edition = "2021"
+description = "Đảo chiều cuộn của con lăn chuột trên macOS, có icon trên menu bar"
+
+[dependencies]
+core-foundation = "0.9"
+core-graphics = "0.23"
+tao = "0.30"
+tray-icon = "0.19"
+
+[dev-dependencies]
+png = "0.17"   # chỉ dùng cho examples/make_icon.rs (tạo icon app)
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
