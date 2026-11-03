@@ -14,7 +14,7 @@
 
 ### ⬇️ Bước 1: Vào trang Releases để tải bộ cài
 
-1. Mở trang **[Releases của ReverseScroll](https://github.com/<USER>/<REPO>/releases/latest)**.
+1. Mở trang **[Releases của ReverseScroll](https://github.com/ducwp/reverse-scroll/releases/latest)**.
    *(Hoặc vào trang chính của dự án, nhìn cột bên phải, bấm vào mục **Releases** → chọn bản mới nhất ở trên cùng.)*
 2. Kéo xuống phần **Assets** (nằm cuối mô tả của bản phát hành).
 3. Bấm vào file có đuôi **`.dmg`**, ví dụ **`ReverseScroll-0.4.0.dmg`** để tải về.
@@ -147,7 +147,7 @@ Mọi lựa chọn đều được **tự động ghi nhớ** cho những lần 
 
 **7. Cập nhật lên phiên bản mới như thế nào?**
 
-> Vào lại trang **[Releases](https://github.com/<USER>/<REPO>/releases/latest)**, tải file `.dmg` mới nhất, rồi:
+> Vào lại trang **[Releases](https://github.com/ducwp/reverse-scroll/releases/latest)**, tải file `.dmg` mới nhất, rồi:
 >
 > 1. Thoát ReverseScroll cũ (menu ⇅ ➔ **Thoát**).
 > 2. Kéo bản mới vào `Applications` và chọn **Thay thế**.
@@ -167,7 +167,7 @@ Mọi lựa chọn đều được **tự động ghi nhớ** cho những lần 
 Yêu cầu: macOS 11 trở lên, [Rust](https://rustup.rs) và Xcode Command Line Tools (`xcode-select --install`).
 
 ```bash
-git clone https://github.com/<USER>/<REPO>.git
+git clone https://github.com/ducwp/reverse-scroll.git
 cd <REPO>
 chmod +x build-dmg.sh
 ./build-dmg.sh
