@@ -1,8 +1,8 @@
 //! reverse-scroll (menu bar): đảo chiều cuộn của con lăn chuột trên macOS.
 //!
 //! Icon ⇅ trên menu bar, bấm để:
-//!  - Bật/tắt đảo chiều cuộn
-//!  - Đảo cả trackpad (mặc định chỉ đảo chuột ngoài)
+//!  - Đảo chiều cuộn của chuột (bật/tắt độc lập)
+//!  - Đảo chiều cuộn của trackpad (bật/tắt độc lập)
 //!  - Đảo cuộn ngang
 //!  - Mở cùng máy khi đăng nhập
 //!
@@ -33,8 +33,8 @@ const SCROLL_POINT_AXIS_2: u32 = 97;
 const SCROLL_IS_CONTINUOUS: u32 = 88; // 1 = trackpad / Magic Mouse
 
 // ---- Trạng thái dùng chung giữa menu và callback ----
-static ENABLED: AtomicBool = AtomicBool::new(true);
-static REVERSE_ALL: AtomicBool = AtomicBool::new(false);
+static REVERSE_MOUSE: AtomicBool = AtomicBool::new(true);
+static REVERSE_TRACKPAD: AtomicBool = AtomicBool::new(false);
 static REVERSE_HORIZONTAL: AtomicBool = AtomicBool::new(true);
 
 const LOGIN_LABEL: &str = "com.example.reversescroll";
@@ -76,10 +76,6 @@ fn log(msg: &str) {
 static DEBUG_LEFT: AtomicUsize = AtomicUsize::new(30);
 
 fn handle_scroll(event: &CGEvent) {
-    if !ENABLED.load(Ordering::Relaxed) {
-        return;
-    }
-
     // ĐỌC hết giá trị gốc trước: các field delta/point/fixed liên kết với nhau,
     // ghi field này có thể làm đổi field kia.
     let continuous = event.get_integer_value_field(SCROLL_IS_CONTINUOUS);
@@ -90,13 +86,20 @@ fn handle_scroll(event: &CGEvent) {
     let p1 = event.get_integer_value_field(SCROLL_POINT_AXIS_1);
     let p2 = event.get_integer_value_field(SCROLL_POINT_AXIS_2);
 
-    let skip = continuous != 0 && !REVERSE_ALL.load(Ordering::Relaxed);
+    // Chuột và trackpad là hai tuỳ chọn độc lập
+    let is_trackpad = continuous != 0;
+    let skip = if is_trackpad {
+        !REVERSE_TRACKPAD.load(Ordering::Relaxed)
+    } else {
+        !REVERSE_MOUSE.load(Ordering::Relaxed)
+    };
 
     if DEBUG_LEFT.load(Ordering::Relaxed) > 0 {
         DEBUG_LEFT.fetch_sub(1, Ordering::Relaxed);
         log(&format!(
-            "scroll: continuous={continuous} d1={d1} d2={d2} f1={f1:.2} f2={f2:.2} p1={p1} p2={p2} -> {}",
-            if skip { "BỎ QUA (coi là trackpad)" } else { "ĐẢO" }
+            "scroll: {} (continuous={continuous}) d1={d1} d2={d2} f1={f1:.2} f2={f2:.2} p1={p1} p2={p2} -> {}",
+            if is_trackpad { "trackpad" } else { "chuột" },
+            if skip { "BỎ QUA" } else { "ĐẢO" }
         ));
     }
 
@@ -216,8 +219,8 @@ fn load_config() {
         };
         let on = v.trim() == "1";
         match k.trim() {
-            "enabled" => ENABLED.store(on, Ordering::Relaxed),
-            "all" => REVERSE_ALL.store(on, Ordering::Relaxed),
+            "mouse" => REVERSE_MOUSE.store(on, Ordering::Relaxed),
+            "trackpad" => REVERSE_TRACKPAD.store(on, Ordering::Relaxed),
             "horizontal" => REVERSE_HORIZONTAL.store(on, Ordering::Relaxed),
             _ => {}
         }
@@ -227,9 +230,9 @@ fn load_config() {
 fn save_config() {
     let b = |a: &AtomicBool| if a.load(Ordering::Relaxed) { 1 } else { 0 };
     let text = format!(
-        "enabled={}\nall={}\nhorizontal={}\n",
-        b(&ENABLED),
-        b(&REVERSE_ALL),
+        "mouse={}\ntrackpad={}\nhorizontal={}\n",
+        b(&REVERSE_MOUSE),
+        b(&REVERSE_TRACKPAD),
         b(&REVERSE_HORIZONTAL)
     );
     let path = config_path();
@@ -303,8 +306,8 @@ fn main() {
     // ---- Menu ----
     let menu = Menu::new();
     let status_item = MenuItem::new("Đang kiểm tra quyền…", false, None);
-    let enabled_item = CheckMenuItem::new("Bật đảo chiều cuộn", true, ENABLED.load(Ordering::Relaxed), None);
-    let all_item = CheckMenuItem::new("Đảo cả trackpad", true, REVERSE_ALL.load(Ordering::Relaxed), None);
+    let mouse_item = CheckMenuItem::new("Đảo chiều chuột", true, REVERSE_MOUSE.load(Ordering::Relaxed), None);
+    let trackpad_item = CheckMenuItem::new("Đảo chiều trackpad", true, REVERSE_TRACKPAD.load(Ordering::Relaxed), None);
     let horiz_item = CheckMenuItem::new("Đảo cả cuộn ngang", true, REVERSE_HORIZONTAL.load(Ordering::Relaxed), None);
     let login_item = CheckMenuItem::new("Mở khi đăng nhập", true, login_enabled(), None);
     let quit_item = MenuItem::new("Thoát", true, None);
@@ -312,8 +315,8 @@ fn main() {
     menu.append_items(&[
         &status_item,
         &PredefinedMenuItem::separator(),
-        &enabled_item,
-        &all_item,
+        &mouse_item,
+        &trackpad_item,
         &horiz_item,
         &PredefinedMenuItem::separator(),
         &login_item,
@@ -351,11 +354,11 @@ fn main() {
                     log("Thoát");
                     *control_flow = ControlFlow::Exit;
                     return;
-                } else if id == enabled_item.id() {
-                    ENABLED.store(enabled_item.is_checked(), Ordering::Relaxed);
+                } else if id == mouse_item.id() {
+                    REVERSE_MOUSE.store(mouse_item.is_checked(), Ordering::Relaxed);
                     save_config();
-                } else if id == all_item.id() {
-                    REVERSE_ALL.store(all_item.is_checked(), Ordering::Relaxed);
+                } else if id == trackpad_item.id() {
+                    REVERSE_TRACKPAD.store(trackpad_item.is_checked(), Ordering::Relaxed);
                     save_config();
                 } else if id == horiz_item.id() {
                     REVERSE_HORIZONTAL.store(horiz_item.is_checked(), Ordering::Relaxed);

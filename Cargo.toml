@@ -1,6 +1,6 @@
 [package]
 name = "reverse-scroll"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 description = "Đảo chiều cuộn của con lăn chuột trên macOS, có icon trên menu bar"
 

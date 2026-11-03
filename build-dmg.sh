@@ -6,7 +6,7 @@ set -euo pipefail
 APP_NAME="ReverseScroll"
 BIN_NAME="reverse-scroll"
 BUNDLE_ID="com.example.reversescroll"   # đổi thành ID của bạn
-VERSION="0.3.0"
+VERSION="0.4.0"
 DIST="dist"
 APP="$DIST/$APP_NAME.app"
 DMG="$DIST/$APP_NAME-$VERSION.dmg"
