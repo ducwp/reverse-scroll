@@ -120,8 +120,8 @@ Mọi lựa chọn đều được **tự động ghi nhớ** cho những lần 
 >
 > ```bash
 > killall ReverseScroll
-> tccutil reset Accessibility com.example.reversescroll
-> tccutil reset ListenEvent com.example.reversescroll
+> tccutil reset Accessibility com.ducwp.reversescroll
+> tccutil reset ListenEvent com.ducwp.reversescroll
 > open /Applications/ReverseScroll.app
 > ```
 >
@@ -192,5 +192,5 @@ File cài đặt sẽ nằm ở `dist/ReverseScroll-<phiên bản>.dmg`.
 
 ## 👤 Tác Giả & Bản Quyền
 
-- Phát triển bởi **<Tên của bạn>**.
+- Phát triển bởi **Đức Nguyễn**.
 - Ứng dụng miễn phí. Nếu bạn thấy hữu ích, hãy cho dự án một ⭐ trên GitHub nhé!

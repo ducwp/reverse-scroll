@@ -37,7 +37,7 @@ static REVERSE_MOUSE: AtomicBool = AtomicBool::new(true);
 static REVERSE_TRACKPAD: AtomicBool = AtomicBool::new(false);
 static REVERSE_HORIZONTAL: AtomicBool = AtomicBool::new(true);
 
-const LOGIN_LABEL: &str = "com.example.reversescroll";
+const LOGIN_LABEL: &str = "com.ducwp.reversescroll";
 
 #[link(name = "ApplicationServices", kind = "framework")]
 extern "C" {
